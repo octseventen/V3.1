@@ -27,8 +27,8 @@ clear;clear;clear
 echo -e "${YELLOW}----------------------------------------------------------${NC}"
 echo -e "  Welcome To Kyt Project Script Installer ${YELLOW}(${NC}${green} Stable Edition ${NC}${YELLOW})${NC}"
 echo -e "     This Will Quick Setup VPN Server On Your Server"
-echo -e "         Auther : ${green}VvipPrem ${NC}${YELLOW}(${NC} ${green}VvipPrem Project ${NC}${YELLOW})${NC}"
-echo -e "       © Recode By VvipPrem Project ${YELLOW}(${NC} 2023 ${YELLOW})${NC}"
+echo -e "         Auther : ${green}V3.1 ${NC}${YELLOW}(${NC} ${green}V3.1 Project ${NC}${YELLOW})${NC}"
+echo -e "       © Recode By V3.1 Project ${YELLOW}(${NC} 2023 ${YELLOW})${NC}"
 echo -e "${YELLOW}----------------------------------------------------------${NC}"
 echo ""
 sleep 5
@@ -141,7 +141,7 @@ fi
 echo -e "\e[32mloading...\e[0m"
 clear
 # REPO    
-    REPO="https://raw.githubusercontent.com/Danieltun842/VvipPrem/main/"
+    REPO="https://raw.githubusercontent.com/Danieltun842/V3.1/main/"
 
 ####
 start=$(date +%s)
