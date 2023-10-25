@@ -141,8 +141,10 @@ sts="${Error}"
 fi
 echo -e "\e[32mloading...\e[0m"
 clear
+
 # REPO    
-    REPO="https://raw.githubusercontent.com/octseventen/VvipPrem/main/"
+REPO="https://raw.githubusercontent.com/octseventen/V3.1/main/"
+
 
 ####
 start=$(date +%s)
