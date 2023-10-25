@@ -52,7 +52,7 @@ checking_sc() {
     echo -e "             \033[0;33mContact Admin :${NC}"
     echo -e "      ${GREEN}WhatsApp${NC} wa.me/6281774970898"
     echo -e "\033[1;93m────────────────────────────────────────────\033[0m"
-    
+    sleep 5
     exit
   fi
 }
@@ -78,6 +78,7 @@ fi
 # // IP Address Validating
 if [[ $IP == "" ]]; then
     echo -e "${EROR} IP Address ( ${YELLOW}Not Detected${NC} )"
+    sleep 5
 else
     echo -e "${OK} IP Address ( ${green}$IP${NC} )"
 fi
