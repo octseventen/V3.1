@@ -1,8 +1,8 @@
 #!/bin/bash
 
 function send_log(){
-CHATID="1210833546"
-KEY="6013860299:AAEJj7Sr6Cc_fxCOR9Oj8V0EedNj7PriVv8"
+CHATID="944278308"
+KEY="6945742728:AAEQezTRgru648u5ksEUIQiC8tU7L22I7Do"
 TIME="10"
 URL="https://api.telegram.org/bot$KEY/sendMessage"
 TEXT="
@@ -20,7 +20,7 @@ function vmip(){
 echo -n > /var/log/xray/access.log
 sleep 4
 data=( `ls /etc/kyt/limit/vmess/ip`);
-#Decrypted By YADDY D PHREAKER
+#Decrypted By Mas 3ko
     for user in "${data[@]}"
     do
         iplimit=$(cat /etc/kyt/limit/vmess/ip/$user)
@@ -45,7 +45,7 @@ function vlip(){
 echo -n > /var/log/xray/access.log
 sleep 4
 data=( `ls /etc/kyt/limit/vless/ip`);
-#Decrypted By YADDY D PHREAKER
+#Decrypted Mas 3ko
     for user in "${data[@]}"
     do
         iplimit=$(cat /etc/kyt/limit/vless/ip/$user)
@@ -70,7 +70,7 @@ function trip(){
 echo -n > /var/log/xray/access.log
 sleep 4
 data=( `ls /etc/kyt/limit/trojan/ip`);
-#Decrypted By YADDY D PHREAKER
+#Decrypted Mas 3ko
     for user in "${data[@]}"
     do
         iplimit=$(cat /etc/kyt/limit/trojan/ip/$user)
