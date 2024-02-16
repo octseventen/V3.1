@@ -1110,5 +1110,6 @@ echo -e ""
 sudo hostnamectl set-hostname $username
 echo -e "${green} Script Successfull Installed"
 echo ""
-read -p "$( echo -e "Klik ${YELLOW}[ ${NC}${YELLOW}Enter${NC} ${YELLOW}]${NC} Untuk Install UDP Custom ") "
-wget --load-cookies /tmp/cookies.txt ${UDPX} -O install-udp && rm -rf /tmp/cookies.txt && chmod +x install-udp && ./install-udp
+read echo ""
+read -p "$( echo -e "Press ${YELLOW}[ ${NC}${YELLOW}Enter${NC} ${YELLOW}]${NC} For reboot") "
+reboot
