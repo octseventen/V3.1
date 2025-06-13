@@ -1,6 +1,6 @@
 #!/bin/bash
-NS=$( cat /etc/xray/dns )
-PUB=$( cat /etc/slowdns/server.pub )
+#NS=$( cat /etc/xray/dns )
+#PUB=$( cat /etc/slowdns/server.pub )
 domain=$(cat /etc/xray/domain)
 #color
 grenbo="\e[92;1m"
@@ -9,12 +9,12 @@ NC='\e[0m'
 apt update && apt upgrade
 apt install python3 python3-pip git
 cd /usr/bin
-rm -rf kyt.zip
+rm -f kyt.zip
 wget https://raw.githubusercontent.com/octseventen/V3.1/main/files/bot.zip
 unzip bot.zip
 mv bot/* /usr/bin
 chmod +x /usr/bin/*
-rm -rf bot.zip
+rm -f bot.zip
 clear
 wget https://raw.githubusercontent.com/octseventen/V3.1/main/files/kyt.zip
 unzip kyt.zip
@@ -57,7 +57,8 @@ systemctl start kyt
 systemctl enable kyt
 systemctl restart kyt
 cd /root
-rm -rf kyt.sh
+rm -f kyt.sh
+clear
 echo "Done"
 echo "Your Data Bot"
 echo -e "==============================="
@@ -70,5 +71,4 @@ echo -e "==============================="
 echo "Setting done"
 sleep 5
 clear
-
 echo " Installations complete, type /menu on your bot"
