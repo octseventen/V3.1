@@ -9,6 +9,7 @@ NC='\e[0m'
 apt update && apt upgrade
 apt install python3 python3-pip git
 cd /usr/bin
+rm -rf kyt.zip
 wget https://raw.githubusercontent.com/octseventen/V3.1/main/files/bot.zip
 unzip bot.zip
 mv bot/* /usr/bin
@@ -61,12 +62,13 @@ echo "Done"
 echo "Your Data Bot"
 echo -e "==============================="
 echo "Token Bot         : $bottoken"
-echo "Admin          : $admin"
-echo "Domain        : $domain"
-echo "Pub            : $PUB"
-echo "Host           : $NS"
+echo "Admin             : $admin"
+echo "Domain            : $domain"
+echo "Pub               : $PUB"
+echo "Host              : $NS"
 echo -e "==============================="
 echo "Setting done"
+sleep 5
 clear
 
 echo " Installations complete, type /menu on your bot"
