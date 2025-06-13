@@ -19,7 +19,7 @@ clear
 wget https://raw.githubusercontent.com/octseventen/V3.1/main/files/kyt.zip
 unzip kyt.zip
 pip3 install -r kyt/requirements.txt
-
+rm -f kyt.zip
 clear
 #isi data
 echo ""
@@ -56,9 +56,10 @@ END
 systemctl start kyt 
 systemctl enable kyt
 systemctl restart kyt
-cd /root
+cd /usr/bin
 rm -f kyt.sh
 clear
+cd /root
 echo "Done"
 echo "Your Data Bot"
 echo -e "==============================="
