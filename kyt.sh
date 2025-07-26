@@ -8,6 +8,8 @@ NC='\e[0m'
 #install
 apt update && apt upgrade
 apt install python3 python3-pip git
+cd /root
+rm -f kyt.sh
 cd /usr/bin
 rm -f kyt.zip
 wget https://raw.githubusercontent.com/octseventen/V3.1/main/files/bot.zip
@@ -26,12 +28,12 @@ echo ""
 echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo -e " \e[1;97;101m          ADD BOT PANEL          \e[0m"
 echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "${grenbo}Tutorial Create Bot and ID Telegram${NC}"
+echo -e "${grenbo}Create Bot and ID Telegram${NC}"
 echo -e "${grenbo}[*] Create Bot and Token Bot : @BotFather${NC}"
 echo -e "${grenbo}[*] Info Id Telegram : @MissRose_bot , perintah /info${NC}"
 echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-read -e -p "[*] Input your Bot Token : " bottoken
-read -e -p "[*] Input Your Id Telegram :" admin
+read -e -p "[*] Input Your Bot Token : " bottoken
+read -e -p "[*] Input Your ID Telegram :" admin
 echo -e BOT_TOKEN='"'$bottoken'"' >> /usr/bin/kyt/var.txt
 echo -e ADMIN='"'$admin'"' >> /usr/bin/kyt/var.txt
 echo -e DOMAIN='"'$domain'"' >> /usr/bin/kyt/var.txt
