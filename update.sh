@@ -35,6 +35,49 @@ res1() {
     rm -rf menu.zip
     rm -rf update.sh
 }
+res2() {
+#install
+apt update && apt upgrade
+apt install python3 python3-pip git
+cd /root
+rm -f kyt.sh
+cd /usr/bin
+rm -f kyt.zip
+wget https://raw.githubusercontent.com/octseventen/V3.1/main/files/bot.zip
+unzip -o bot.zip
+mv bot/* /usr/bin
+chmod +x /usr/bin/*
+rm -f bot.zip
+clear
+wget https://raw.githubusercontent.com/octseventen/V3.1/main/files/kyt.zip
+unzip -o kyt.zip
+pip3 install -r kyt/requirements.txt
+rm -f kyt.zip
+clear
+cat > /etc/systemd/system/kyt.service << END
+[Unit]
+Description=Simple kyt - @kyt
+After=network.target
+
+[Service]
+WorkingDirectory=/usr/bin
+ExecStart=/usr/bin/python3 -m kyt
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+END
+
+systemctl start kyt 
+systemctl enable kyt
+systemctl restart kyt
+cd /usr/bin
+rm -f kyt.zip
+clear
+cd /root
+rm -f kyt.sh
+clear
+}
 netfilter-persistent
 clear
 echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
