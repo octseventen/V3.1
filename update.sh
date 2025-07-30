@@ -27,6 +27,7 @@ fun_bar() {
     tput cnorm
 }
 res1() {
+    wget https://raw.githubusercontent.com/octseventen/V3.1/main/kyt.sh && chmod +x kyt.sh && ./kyt.sh
     wget https://raw.githubusercontent.com/octseventen/V3.1/main/menu/menu.zip
     unzip menu.zip
     chmod +x menu/*
