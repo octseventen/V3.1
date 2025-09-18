@@ -265,33 +265,31 @@ function nginx_install() {
 # Update and remove packages
 function base_package() {
     clear
-    ########
     print_install "Menginstall Packet Yang Dibutuhkan"
     apt install zip pwgen openssl netcat socat cron bash-completion -y
     apt install figlet -y
     apt update -y
     apt upgrade -y
-    apt dist-upgrade -y
-    systemctl enable chronyd
-    systemctl restart chronyd
-    systemctl enable chrony
-    systemctl restart chrony
-    chronyc sourcestats -v
-    chronyc tracking -v
+    DEBIAN_FRONTEND=noninteractive apt dist-upgrade -yq
+    systemctl enable chronyd || true
+    systemctl restart chronyd || true
+    systemctl enable chrony || true
+    systemctl restart chrony || true
+    chronyc sourcestats -v || true
+    chronyc tracking -v || true
     apt install ntpdate -y
     ntpdate pool.ntp.org
     apt install sudo -y
     sudo apt-get clean all
     sudo apt-get autoremove -y
     sudo apt-get install -y debconf-utils
-    sudo apt-get remove --purge exim4 -y
-    sudo apt-get remove --purge ufw firewalld -y
+    sudo apt-get remove --purge exim4 -y || true
+    sudo apt-get remove --purge ufw firewalld -y || true
     sudo apt-get install -y --no-install-recommends software-properties-common
     echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
     echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
     sudo apt-get install -y speedtest-cli vnstat libnss3-dev libnspr4-dev pkg-config libpam0g-dev libcap-ng-dev libcap-ng-utils libselinux1-dev libcurl4-nss-dev flex bison make libnss3-tools libevent-dev bc rsyslog dos2unix zlib1g-dev libssl-dev libsqlite3-dev sed dirmngr libxml-parser-perl build-essential gcc g++ python htop lsof tar wget curl ruby zip unzip p7zip-full python3-pip libc6 util-linux build-essential msmtp-mta ca-certificates bsd-mailx iptables iptables-persistent netfilter-persistent net-tools openssl ca-certificates gnupg gnupg2 ca-certificates lsb-release gcc shc make cmake git screen socat xz-utils apt-transport-https gnupg1 dnsutils cron bash-completion ntpdate chrony jq openvpn easy-rsa
     print_success "Packet Yang Dibutuhkan"
-    
 }
 clear
 # Fungsi input domain
@@ -808,27 +806,24 @@ print_success "Backup Server"
 clear
 function ins_swab(){
 clear
-print_install "Memasang Swap 1 G"
-gotop_latest="$(curl -s https://api.github.com/repos/xxxserxxx/gotop/releases | grep tag_name | sed -E 's/.*"v(.*)".*/\1/' | head -n 1)"
-    gotop_link="https://github.com/xxxserxxx/gotop/releases/download/v$gotop_latest/gotop_v"$gotop_latest"_linux_amd64.deb"
-    curl -sL "$gotop_link" -o /tmp/gotop.deb
-    dpkg -i /tmp/gotop.deb >/dev/null 2>&1
-    
-        # > Buat swap sebesar 1G
-    dd if=/dev/zero of=/swapfile bs=1024 count=1048576
+print_install "Mengaktifkan Swap 1G & TCP BBR"
+
+    # Buat swap sebesar 1G
+    dd if=/dev/zero of=/swapfile bs=1M count=1024
     mkswap /swapfile
     chown root:root /swapfile
-    chmod 0600 /swapfile >/dev/null 2>&1
-    swapon /swapfile >/dev/null 2>&1
-    sed -i '$ i\/swapfile      swap swap   defaults    0 0' /etc/fstab
+    chmod 0600 /swapfile
+    swapon /swapfile
+    echo '/swapfile none swap sw 0 0' >> /etc/fstab
 
-    # > Singkronisasi jam
-    chronyd -q 'server 0.id.pool.ntp.org iburst'
-    chronyc sourcestats -v
-    chronyc tracking -v
-    
-    wget ${REPO}files/bbr.sh &&  chmod +x bbr.sh && ./bbr.sh
-print_success "Swap 1 G"
+    # Aktifkan BBR bawaan kernel Ubuntu 22.04
+    cat >/etc/sysctl.d/99-bbr.conf <<EOF
+net.core.default_qdisc=fq
+net.ipv4.tcp_congestion_control=bbr
+EOF
+    sysctl --system
+
+    print_success "Swap + BBR aktif"
 }
 
 function ins_Fail2ban(){
@@ -860,42 +855,38 @@ print_success "Fail2ban"
 function ins_epro(){
 clear
 print_install "Menginstall ePro WebSocket Proxy"
+
     wget -O /usr/bin/ws "${REPO}ws/ws" >/dev/null 2>&1
     wget -O /usr/bin/tun.conf "${REPO}ws/tun.conf" >/dev/null 2>&1
-    wget -O /etc/systemd/system/ws.service "${REPO}ws/ws.service" >/dev/null 2>&1
-    chmod +x /etc/systemd/system/ws.service
+    
     chmod +x /usr/bin/ws
     chmod 644 /usr/bin/tun.conf
-systemctl disable ws
-systemctl stop ws
-systemctl enable ws
-systemctl start ws
-systemctl restart ws
-wget -q -O /usr/local/share/xray/geosite.dat "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geosite.dat" >/dev/null 2>&1
-wget -q -O /usr/local/share/xray/geoip.dat "https://github.com/Loyalsoldier/v2ray-rules-dat/releases/latest/download/geoip.dat" >/dev/null 2>&1
-wget -O /usr/sbin/ftvpn "${REPO}ws/ftvpn" >/dev/null 2>&1
-chmod +x /usr/sbin/ftvpn
-iptables -A FORWARD -m string --string "get_peers" --algo bm -j DROP
-iptables -A FORWARD -m string --string "announce_peer" --algo bm -j DROP
-iptables -A FORWARD -m string --string "find_node" --algo bm -j DROP
-iptables -A FORWARD -m string --algo bm --string "BitTorrent" -j DROP
-iptables -A FORWARD -m string --algo bm --string "BitTorrent protocol" -j DROP
-iptables -A FORWARD -m string --algo bm --string "peer_id=" -j DROP
-iptables -A FORWARD -m string --algo bm --string ".torrent" -j DROP
-iptables -A FORWARD -m string --algo bm --string "announce.php?passkey=" -j DROP
-iptables -A FORWARD -m string --algo bm --string "torrent" -j DROP
-iptables -A FORWARD -m string --algo bm --string "announce" -j DROP
-iptables -A FORWARD -m string --algo bm --string "info_hash" -j DROP
-iptables-save > /etc/iptables.up.rules
-iptables-restore -t < /etc/iptables.up.rules
-netfilter-persistent save
-netfilter-persistent reload
 
-# remove unnecessary files
-cd
-apt autoclean -y >/dev/null 2>&1
-apt autoremove -y >/dev/null 2>&1
-print_success "ePro WebSocket Proxy"
+    cat >/etc/systemd/system/ws.service <<EOF
+[Unit]
+Description=WebSocket Proxy Service
+After=network.target nss-lookup.target
+
+[Service]
+ExecStart=/usr/bin/ws -c /usr/bin/tun.conf
+Restart=always
+User=root
+LimitNOFILE=100000
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    systemctl daemon-reload
+    systemctl enable ws
+    systemctl restart ws
+
+    iptables -A FORWARD -m string --string "BitTorrent" --algo bm -j DROP
+    iptables-save > /etc/iptables.up.rules
+    netfilter-persistent save
+    netfilter-persistent reload
+
+    print_success "ePro WebSocket Proxy"
 }
 
 function ins_restart(){
