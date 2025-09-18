@@ -228,8 +228,11 @@ function first_setup(){
     echo "Setup Dependencies $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
     sudo apt update -y
     apt-get install --no-install-recommends software-properties-common
-    add-apt-repository ppa:vbernat/haproxy-2.0 -y
-    apt-get -y install haproxy=2.0.\*
+    add-apt-repository -r ppa:vbernat/haproxy-2.0 -y
+	apt remove --purge haproxy -y
+	apt update
+	apt install -y haproxy
+
 elif [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "debian" ]]; then
     echo "Setup Dependencies For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
     curl https://haproxy.debian.net/bernat.debian.org.gpg |
@@ -269,6 +272,15 @@ function base_package() {
     apt install zip pwgen openssl netcat socat cron bash-completion -y
     apt install figlet -y
     apt update -y
+	 export DEBIAN_FRONTEND=noninteractive
+    apt update -y
+    apt -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -yq
+    apt -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -yq
+
+    # lanjut install paket lain...
+    apt install -y sudo iptables iptables-persistent netfilter-persistent ...
+    
+    print_success "Paket Yang Dibutuhkan"
     apt upgrade -y
     DEBIAN_FRONTEND=noninteractive apt dist-upgrade -yq
     systemctl enable chronyd || true
@@ -862,13 +874,61 @@ print_install "Menginstall ePro WebSocket Proxy"
     chmod +x /usr/bin/ws
     chmod 644 /usr/bin/tun.conf
 
-    cat >/etc/systemd/system/ws.service <<EOF
+    cat >/usr/bin/ws-epro.py <<'EOF'
+#!/usr/bin/env python3
+import asyncio
+import websockets
+import socket
+
+# setting target SSH (localhost:22)
+REMOTE_HOST = "127.0.0.1"
+REMOTE_PORT = 22
+LISTEN_PORT = 80  # port WebSocket
+
+async def handle_client(websocket):
+    try:
+        reader, writer = await asyncio.open_connection(REMOTE_HOST, REMOTE_PORT)
+
+        async def ws_to_tcp():
+            async for message in websocket:
+                writer.write(message.encode() if isinstance(message, str) else message)
+                await writer.drain()
+
+        async def tcp_to_ws():
+            while not reader.at_eof():
+                data = await reader.read(1024)
+                if data:
+                    await websocket.send(data)
+
+        await asyncio.gather(ws_to_tcp(), tcp_to_ws())
+    except Exception as e:
+        print(f"Error: {e}")
+    finally:
+        try:
+            writer.close()
+            await writer.wait_closed()
+        except:
+            pass
+
+async def main():
+    async with websockets.serve(handle_client, "0.0.0.0", LISTEN_PORT):
+        await asyncio.Future()  # run forever
+
+if __name__ == "__main__":
+    asyncio.run(main())
+EOF
+
+	chmod +x /usr/bin/ws-epro.py
+	apt install -y python3-pip
+	pip3 install websockets
+	
+	cat >/etc/systemd/system/ws-epro.service <<'EOF'
 [Unit]
-Description=WebSocket Proxy Service
-After=network.target nss-lookup.target
+Description=WebSocket Proxy (Python)
+After=network.target
 
 [Service]
-ExecStart=/usr/bin/ws -c /usr/bin/tun.conf
+ExecStart=/usr/bin/python3 /usr/bin/ws-epro.py
 Restart=always
 User=root
 LimitNOFILE=100000
@@ -878,8 +938,9 @@ WantedBy=multi-user.target
 EOF
 
     systemctl daemon-reload
-    systemctl enable ws
-    systemctl restart ws
+	systemctl enable ws-epro
+	systemctl start ws-epro
+
 
     iptables -A FORWARD -m string --string "BitTorrent" --algo bm -j DROP
     iptables-save > /etc/iptables.up.rules
