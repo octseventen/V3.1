@@ -15,8 +15,9 @@ apt install -y wget screen || { echo "Gagal instal wget/screen"; exit 1; } && \
 apt update -y && apt upgrade -y && \
 apt install -y lolcat ruby-full build-essential || true && \
 gem install lolcat || true && \
-wget -q https://raw.githubusercontent.com/octseventen/V3.1/main/premi.sh && chmod +x premi.sh && \
-screen -S install ./premi.sh</code></pre>
+wget -q https://raw.githubusercontent.com/octseventen/V3.1/main/premi.sh && \
+chmod +x premi.sh && \
+screen -S install bash -c "./premi.sh; exec bash"</code></pre>
 
 # UPDATE 
 <pre><code>wget https://raw.githubusercontent.com/octseventen/V3.1/main/update.sh && chmod +x update.sh && ./update.sh</code></pre>
