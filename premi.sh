@@ -883,7 +883,7 @@ import socket
 # setting target SSH (localhost:22)
 REMOTE_HOST = "127.0.0.1"
 REMOTE_PORT = 22
-LISTEN_PORT = 80  # port WebSocket
+LISTEN_PORT = 2082  # port WebSocket
 
 async def handle_client(websocket):
     try:
