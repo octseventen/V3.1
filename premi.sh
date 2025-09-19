@@ -926,7 +926,7 @@ systemctl restart haproxy
     systemctl enable --now cron
     systemctl enable --now haproxy
     systemctl enable --now netfilter-persistent
-    systemctl enable --now ws-epro
+    systemctl enable --now ws
     systemctl enable --now fail2ban
 history -c
 echo "unset HISTFILE" >> /etc/profile
