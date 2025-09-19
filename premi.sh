@@ -307,7 +307,7 @@ function base_package() {
 
     # Install paket dasar
     apt install -y \
-        sudo curl wget git screen socat netcat \
+        sudo curl wget git screen socat netcat-openbsd \
         unzip p7zip-full zip pwgen openssl \
         iptables iptables-persistent netfilter-persistent \
         bash-completion cron figlet jq htop lsof vnstat \
