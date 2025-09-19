@@ -219,90 +219,117 @@ print_install "Membuat direktori xray"
     export IP=$( curl -s https://ipinfo.io/ip/ )
 
 # Change Environment System
-function first_setup(){
+function first_setup() {
+    clear
+    print_install "Menjalankan First Setup"
+
+    # Set timezone
     timedatectl set-timezone Asia/Jakarta
+
+    # Auto-save iptables rules
     echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
     echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
-    print_success "Directory Xray"
-    if [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "ubuntu" ]]; then
-    echo "Setup Dependencies $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
-    sudo apt update -y
-    apt-get install --no-install-recommends software-properties-common
-    add-apt-repository -r ppa:vbernat/haproxy-2.0 -y
-	apt remove --purge haproxy -y
-	apt update
-	apt install -y haproxy
 
-elif [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "debian" ]]; then
-    echo "Setup Dependencies For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
-    curl https://haproxy.debian.net/bernat.debian.org.gpg |
-        gpg --dearmor >/usr/share/keyrings/haproxy.debian.net.gpg
-    echo deb "[signed-by=/usr/share/keyrings/haproxy.debian.net.gpg]" \
-        http://haproxy.debian.net buster-backports-1.8 main \
-        >/etc/apt/sources.list.d/haproxy.list
-    sudo apt-get update
-    apt-get -y install haproxy=1.8.\*
-else
-    echo -e " Your OS Is Not Supported ($(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g') )"
-    exit 1
-fi
+    # Ambil info OS
+    OS_ID=$(grep -w ID /etc/os-release | head -n1 | cut -d= -f2 | tr -d '"')
+    OS_NAME=$(grep -w PRETTY_NAME /etc/os-release | head -n1 | cut -d= -f2- | tr -d '"')
+
+    print_success "Directory Xray"
+    echo "Setup Dependencies for $OS_NAME"
+
+    if [[ "$OS_ID" == "ubuntu" ]]; then
+        # Ubuntu
+        apt update -y
+        apt install -y --no-install-recommends software-properties-common
+        add-apt-repository -r ppa:vbernat/haproxy-2.0 -y || true
+        apt remove --purge haproxy -y || true
+        apt update -y
+        apt install -y haproxy || { echo "Gagal install HAProxy di Ubuntu"; exit 1; }
+
+    elif [[ "$OS_ID" == "debian" ]]; then
+        # Debian
+        curl -fsSL https://haproxy.debian.net/bernat.debian.org.gpg | \
+            gpg --dearmor >/usr/share/keyrings/haproxy.debian.net.gpg
+
+        echo "deb [signed-by=/usr/share/keyrings/haproxy.debian.net.gpg] \
+http://haproxy.debian.net buster-backports-1.8 main" \
+            >/etc/apt/sources.list.d/haproxy.list
+
+        apt update -y
+        apt install -y haproxy=1.8.* || { echo "Gagal install HAProxy di Debian"; exit 1; }
+
+    else
+        echo "❌ OS $OS_NAME belum didukung!"
+        exit 1
+    fi
+
+    print_success "First setup selesai"
 }
+
 
 # GEO PROJECT
-clear
 function nginx_install() {
-    # // Checking System
-    if [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "ubuntu" ]]; then
-        print_install "Setup nginx For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
-        # // sudo add-apt-repository ppa:nginx/stable -y 
-        sudo apt-get install nginx -y 
-    elif [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "debian" ]]; then
-        print_success "Setup nginx For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
-        apt -y install nginx 
-    else
-        echo -e " Your OS Is Not Supported ( ${YELLOW}$(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')${FONT} )"
-        # // exit 1
-    fi
+    clear
+    # Ambil info OS
+    OS_ID=$(grep -w ID /etc/os-release | head -n1 | cut -d= -f2 | tr -d '"')
+    OS_NAME=$(grep -w PRETTY_NAME /etc/os-release | head -n1 | cut -d= -f2- | tr -d '"')
+
+    print_install "Setup Nginx untuk $OS_NAME"
+
+    case "$OS_ID" in
+        ubuntu|debian)
+            apt update -y
+            apt install -y nginx || { echo "❌ Gagal install Nginx di $OS_NAME"; exit 1; }
+            systemctl enable nginx
+            systemctl restart nginx
+            print_success "Nginx berhasil diinstall & dijalankan"
+        ;;
+        *)
+            echo -e "❌ Your OS is not supported ($OS_NAME)"
+            # exit 1
+        ;;
+    esac
 }
+
 
 # Update and remove packages
 function base_package() {
     clear
-    print_install "Menginstall Packet Yang Dibutuhkan"
-    apt install zip pwgen openssl netcat socat cron bash-completion -y
-    apt install figlet -y
-    apt update -y
-	 export DEBIAN_FRONTEND=noninteractive
-    apt update -y
-    apt -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" upgrade -yq
-    apt -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold" dist-upgrade -yq
+    print_install "Menginstall Paket yang Dibutuhkan"
 
-    # lanjut install paket lain...
-    apt install -y sudo iptables iptables-persistent netfilter-persistent ...
-    
-    print_success "Paket Yang Dibutuhkan"
-    apt upgrade -y
-    DEBIAN_FRONTEND=noninteractive apt dist-upgrade -yq
-    systemctl enable chronyd || true
-    systemctl restart chronyd || true
-    systemctl enable chrony || true
-    systemctl restart chrony || true
-    chronyc sourcestats -v || true
-    chronyc tracking -v || true
-    apt install ntpdate -y
-    ntpdate pool.ntp.org
-    apt install sudo -y
-    sudo apt-get clean all
-    sudo apt-get autoremove -y
-    sudo apt-get install -y debconf-utils
-    sudo apt-get remove --purge exim4 -y || true
-    sudo apt-get remove --purge ufw firewalld -y || true
-    sudo apt-get install -y --no-install-recommends software-properties-common
-    echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
-    echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
-    sudo apt-get install -y speedtest-cli vnstat libnss3-dev libnspr4-dev pkg-config libpam0g-dev libcap-ng-dev libcap-ng-utils libselinux1-dev libcurl4-nss-dev flex bison make libnss3-tools libevent-dev bc rsyslog dos2unix zlib1g-dev libssl-dev libsqlite3-dev sed dirmngr libxml-parser-perl build-essential gcc g++ python htop lsof tar wget curl ruby zip unzip p7zip-full python3-pip libc6 util-linux build-essential msmtp-mta ca-certificates bsd-mailx iptables iptables-persistent netfilter-persistent net-tools openssl ca-certificates gnupg gnupg2 ca-certificates lsb-release gcc shc make cmake git screen socat xz-utils apt-transport-https gnupg1 dnsutils cron bash-completion ntpdate chrony jq openvpn easy-rsa
-    print_success "Packet Yang Dibutuhkan"
+    export DEBIAN_FRONTEND=noninteractive
+
+    # Update & upgrade sistem
+    apt update -y || { echo "Gagal update repo!"; exit 1; }
+    apt -o Dpkg::Options::="--force-confdef" \
+        -o Dpkg::Options::="--force-confold" \
+        full-upgrade -yq || { echo "Gagal upgrade sistem!"; exit 1; }
+
+    # Install paket dasar
+    apt install -y \
+        sudo curl wget git screen socat netcat \
+        unzip p7zip-full zip pwgen openssl \
+        iptables iptables-persistent netfilter-persistent \
+        bash-completion cron figlet jq htop lsof vnstat \
+        build-essential gcc g++ make cmake shc \
+        software-properties-common debconf-utils \
+        dnsutils gnupg gnupg2 apt-transport-https lsb-release \
+        openvpn easy-rsa \
+        || { echo "Gagal install paket dasar!"; exit 1; }
+
+    # Sinkronisasi waktu (pakai chrony + ntpdate)
+    apt install -y chrony ntpdate || { echo "Gagal install chrony/ntpdate!"; exit 1; }
+    systemctl enable chrony >/dev/null 2>&1
+    systemctl restart chrony >/dev/null 2>&1
+    ntpdate -u pool.ntp.org || true
+
+    # Bersih-bersih
+    apt-get autoremove -y
+    apt-get clean
+
+    print_success "Semua paket berhasil diinstall tanpa error"
 }
+
 clear
 # Fungsi input domain
 function pasang_domain() {
@@ -312,12 +339,12 @@ clear
 echo -e "   |\e[1;32mPlease Select a Domain Type Below \e[0m|"
 echo -e "   '----------------------------------'"
 echo -e "     \e[1;32m1)\e[0m Menggunakan Domain Sendiri"
-echo -e "     \e[1;32m2)\e[0m Menggunakan Domain Random"
+echo -e "     \e[1;32m2)\e[0m Menggunakan Domain Internal"
 echo -e "   ------------------------------------"
-read -p "   Please select numbers 1-2 or Any Button(Random) : " host
+read -p "   Pilih 1 atau 2 or Tekan Asal Untuk Internal Domain: " host
 echo ""
 if [[ $host == "1" ]]; then
-echo -e "   \e[1;32mPlease Enter Your Subdomain $NC"
+echo -e "   \e[1;32mMasukkan Subdomain *.doamain.com $NC"
 read -p "   Subdomain: " host1
 echo "IP=" >> /var/lib/kyt/ipvps.conf
 echo $host1 > /etc/xray/domain
@@ -329,7 +356,7 @@ wget ${REPO}ssh/cf.sh && chmod +x cf.sh && ./cf.sh
 rm -f /root/cf.sh
 clear
 else
-print_install "Random Subdomain/Domain is Used"
+print_install "Menggunakan domain internal"
 wget ${REPO}cf.sh && chmod +x cf.sh && ./cf.sh
 rm -f /root/cf.sh
 clear
@@ -371,7 +398,7 @@ function password_default() {
     <code>User Script:</code> <code>$username</code>
     <code>Exp Script :</code> <code>$exp</code>
     ============================
-    (C) Copyright 2023 By Geo Project
+    (C) Copyright 2025 Mas 3ko - Lordfreedom
     ============================
 "
 
@@ -1117,6 +1144,5 @@ echo -e ""
 sudo hostnamectl set-hostname $username
 echo -e "${Green} Script Successfull Installed"
 echo ""
-read echo ""
 read -p "$( echo -e "Press ${YELLOW}[ ${NC}${YELLOW}Enter${NC} ${YELLOW}]${NC} For reboot") "
 reboot
