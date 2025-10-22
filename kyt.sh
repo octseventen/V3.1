@@ -1,78 +1,29 @@
 #!/bin/bash
-#NS=$( cat /etc/xray/dns )
-#PUB=$( cat /etc/slowdns/server.pub )
-domain=$(cat /etc/xray/domain)
-#color
+
+=========================================
+KYT BOT INSTALLER (FIX UBUNTU 22.04)
+=========================================
+
+domain=$(cat /etc/xray/domain 2>/dev/null)
 grenbo="\e[92;1m"
 NC='\e[0m'
-#install
-apt update && apt upgrade
-apt install python3 python3-pip git
-cd /root
-rm -f kyt.sh
+
+clear
+echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e " \e[1;97;101m INSTALL KYT TELEGRAM BOT PANEL \e[0m"
+echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+
+update & install dependencies
+
+apt update -y && apt upgrade -y
+apt install -y python3 python3-pip git unzip curl
+
+remove old
+
+systemctl stop kyt 2>/dev/null
+rm -rf /usr/bin/kyt /usr/bin/bot /etc/systemd/system/kyt.service
+
+download bot files
+
 cd /usr/bin
-rm -f kyt.zip
-wget https://raw.githubusercontent.com/octseventen/V3.1/main/files/bot.zip
-unzip -o bot.zip
-mv bot/* /usr/bin
-chmod +x /usr/bin/*
-rm -f bot.zip
-clear
-wget https://raw.githubusercontent.com/octseventen/V3.1/main/files/kyt.zip
-unzip -o kyt.zip
-pip3 install -r kyt/requirements.txt
-rm -f kyt.zip
-clear
-#isi data
-echo ""
-echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e " \e[1;97;101m          ADD BOT PANEL          \e[0m"
-echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-echo -e "${grenbo}Create Bot and ID Telegram${NC}"
-echo -e "${grenbo}[*] Create Bot and Token Bot : @BotFather${NC}"
-echo -e "${grenbo}[*] Info Id Telegram : @MissRose_bot , perintah /info${NC}"
-echo -e "\033[1;36m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
-read -e -p "[*] Input Your Bot Token : " bottoken
-read -e -p "[*] Input Your ID Telegram :" admin
-echo -e BOT_TOKEN='"'$bottoken'"' >> /usr/bin/kyt/var.txt
-echo -e ADMIN='"'$admin'"' >> /usr/bin/kyt/var.txt
-echo -e DOMAIN='"'$domain'"' >> /usr/bin/kyt/var.txt
-echo -e PUB='"'$PUB'"' >> /usr/bin/kyt/var.txt
-echo -e HOST='"'$NS'"' >> /usr/bin/kyt/var.txt
-clear
-
-cat > /etc/systemd/system/kyt.service << END
-[Unit]
-Description=Simple kyt - @kyt
-After=network.target
-
-[Service]
-WorkingDirectory=/usr/bin
-ExecStart=/usr/bin/python3 -m kyt
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-END
-
-systemctl start kyt 
-systemctl enable kyt
-systemctl restart kyt
-cd /usr/bin
-rm -f kyt.zip
-clear
-cd /root
-rm -f kyt.sh
-echo "Done"
-echo "Your Data Bot"
-echo -e "==============================="
-echo "Token Bot         : $bottoken"
-echo "Admin             : $admin"
-echo "Domain            : $domain"
-echo "Pub               : $PUB"
-echo "Host              : $NS"
-echo -e "==============================="
-echo "Setting done"
-sleep 5
-clear
-echo " Installations complete, type /menu on your bot"
+wget -q https://raw.githubusercontent.com/octseventen/V3.1/main/files/bot.zip
