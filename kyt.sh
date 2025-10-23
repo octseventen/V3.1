@@ -44,6 +44,9 @@ rm -rf bot bot.zip
 wget -q https://raw.githubusercontent.com/octseventen/V3.1/main/files/kyt.zip
 unzip -o kyt.zip >/dev/null 2>&1
 pip3 install --break-system-packages -r kyt/requirements.txt
+pip3 install telethon requests --no-cache-dir --break-system-packages --target=/usr/local/lib/python3.12/dist-packages
+pip3 install telethon requests --no-cache-dir --break-system-packages --target=/usr/lib/python3/dist-packages
+
 rm -f kyt.zip
 
 # input bot data
